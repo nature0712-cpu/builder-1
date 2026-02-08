@@ -1,16 +1,8 @@
-Git 원격 저장소 'origin'이 성공적으로 추가되어 로컬 저장소가 GitHub 저장소와 연결되었습니다.
+GitHub 원격 저장소 URL이 `https://github.com/nature0712-cpu/builder-1`으로 성공적으로 업데이트되었습니다.
 
-하지만, 코드를 GitHub로 푸시하는 작업은 제가 직접 수행할 수 없습니다. 다음 명령어를 사용하여 직접 푸시해 주세요:
+이제 다음 명령어를 사용하여 변경 사항을 GitHub 저장소로 푸시해 주세요. 이 작업은 제가 직접 수행할 수 없으므로, 직접 터미널에 입력해 주셔야 합니다:
 
-1.  **모든 변경 사항 스테이징:**
-    ```bash
-    git add .
-    ```
-2.  **변경 사항 커밋 (처음 푸시하는 경우):**
-    ```bash
-    git commit -m "Initial commit"
-    ```
-3.  **GitHub 저장소로 푸시:**
-    ```bash
-    git push -u origin master
-    ```
+```bash
+git push -u origin master
+```
+이 명령을 실행하면 로컬 커밋된 변경 사항이 새로운 원격 GitHub 저장소에 반영됩니다.
