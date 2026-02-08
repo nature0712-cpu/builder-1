@@ -1,1 +1,224 @@
-/* Add styles here */
+:root {
+  --bg: #0b1020;
+  --card: #121a33;
+  --text: #e8ecff;
+  --muted: #a7b0d6;
+  --btn: #4b63ff;
+  --btn2: #2a355f;
+  --danger: #ff4d6d;
+
+  /* Light mode colors */
+  --light-bg: #f0f2f5;
+  --light-card: #ffffff;
+  --light-text: #333333;
+  --light-muted: #666666;
+  --light-btn: #007bff;
+  --light-btn2: #6c757d;
+  --light-danger: #dc3545;
+}
+
+body.light-mode {
+  --bg: var(--light-bg);
+  --card: var(--light-card);
+  --text: var(--light-text);
+  --muted: var(--light-muted);
+  --btn: var(--light-btn);
+  --btn2: var(--light-btn2);
+  --danger: var(--light-danger);
+  background: radial-gradient(1200px 600px at 30% 10%, #e0e7fd 0%, transparent 60%),
+              radial-gradient(1000px 500px at 70% 30%, #fce4ec 0%, transparent 55%),
+              var(--bg);
+}
+
+*{ box-sizing:border-box }
+
+body{
+  margin:0;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", sans-serif;
+  background: radial-gradient(1200px 600px at 30% 10%, #1a2a7a 0%, transparent 60%),
+              radial-gradient(1000px 500px at 70% 30%, #3a0b5f 0%, transparent 55%),
+              var(--bg);
+  color:var(--text);
+  padding:24px;
+  position: relative; /* For positioning the theme toggle button */
+}
+
+.wrap{
+  width:min(920px,100%);
+  display:grid;
+  gap:16px;
+  grid-template-columns: 1.2fr .8fr;
+}
+
+@media(max-width:860px){
+  .wrap{ grid-template-columns:1fr }
+}
+
+.card{
+  background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+  border-radius:16px;
+  padding:20px;
+  border:1px solid rgba(255,255,255,.1);
+}
+
+body.light-mode .card {
+  background:linear-gradient(180deg, rgba(0,0,0,.06), rgba(0,0,0,.03));
+  border:1px solid rgba(0,0,0,.1);
+}
+
+h1{ margin:0 0 8px }
+.sub{ font-size:13px; color:var(--muted); line-height:1.5 }
+
+.row{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+
+button{
+  border:0;
+  cursor:pointer;
+  padding:10px 14px;
+  border-radius:12px;
+  font-weight:700;
+  color:var(--text);
+  background:var(--btn);
+}
+
+body.light-mode button {
+  color: var(--light-text);
+}
+
+button.secondary{ background:var(--btn2) }
+button.danger{ background:var(--danger) }
+button:disabled{ opacity:.5 }
+
+.hr{
+  height:1px;
+  background:rgba(255,255,255,.1);
+  margin:16px 0;
+}
+
+body.light-mode .hr {
+  background:rgba(0,0,0,.1);
+}
+
+/* ✅ 번호 표시 영역 (중앙 정렬) */
+.balls{
+  min-height:120px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  align-items:center;
+  justify-content:center;
+}
+
+/* ✅ 번호 공 */
+.ball{
+  width:46px;
+  height:46px;
+  border-radius:50%;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-weight:900;
+
+  /* 🔥 핵심 수정 */
+  color:#000;                 /* 숫자 검은색 */
+  text-shadow:none;           /* 가독성 방해 요소 제거 */
+
+  box-shadow:0 8px 18px rgba(0,0,0,.35);
+  border:2px solid rgba(255,255,255,.2);
+}
+
+body.light-mode .ball {
+  border:2px solid rgba(0,0,0,.2);
+}
+
+.ball.sm{
+  width:30px;
+  height:30px;
+  font-size:13px;
+  border-width:1px;
+  box-shadow:none;
+}
+
+/* 색상 구간 */
+.r1{ background:#ffd500 }
+.r2{ background:#59c7ff }
+.r3{ background:#38d660 }
+.r4{ background:#ff5a5a }
+.r5{ background:#b184ff }
+
+/* 애니메이션 */
+@keyframes rollIn{
+  0%{ transform:translateX(-140px) rotate(0deg) scale(.6); opacity:0 }
+  70%{ transform:translateX(10px) rotate(520deg) scale(1.05); opacity:1 }
+  100%{ transform:translateX(0) rotate(720deg) scale(1); }
+}
+
+.roll{ animation:rollIn .6s cubic-bezier(.25,.8,.25,1) }
+
+.historyHeader{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.historyList{
+  margin-top:12px;
+  display:grid;
+  gap:10px;
+}
+
+.histItem{
+  background:rgba(0,0,0,.2);
+  padding:10px;
+  border-radius:12px;
+}
+
+body.light-mode .histItem {
+  background:rgba(0,0,0,.05);
+}
+
+.histTime{
+  font-size:12px;
+  color:var(--muted);
+  margin-bottom:6px;
+}
+
+.histBalls{
+  display:flex;
+  gap:6px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+
+/* Theme Toggle Button Styling */
+.theme-toggle {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  z-index: 1000;
+}
+
+.theme-toggle button {
+  background: var(--btn2);
+  color: var(--text);
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid rgba(255,255,255,.1);
+}
+
+body.light-mode .theme-toggle button {
+  background: var(--light-btn2);
+  color: var(--light-text);
+  border: 1px solid rgba(0,0,0,.1);
+}
