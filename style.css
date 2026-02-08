@@ -56,6 +56,7 @@ body{
 
 @media(max-width:860px){
   .wrap{ grid-template-columns:1fr }
+  .disqus-card { grid-column: 1 / -1; } /* 작은 화면에서 전체 너비 차지 */
 }
 
 .card{

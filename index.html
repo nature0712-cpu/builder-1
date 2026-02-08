@@ -63,8 +63,27 @@
     </form>
   </div>
 
+  <!-- Disqus 댓글 섹션 -->
+  <div class="card disqus-card">
+    <h3>댓글</h3>
+    <div id="disqus_thread"></div>
+  </div>
+
 </div>
 
+<script>
+    var disqus_config = function () {
+    this.page.url = window.location.href;  // 현재 페이지의 URL 사용
+    this.page.identifier = 'lotto-generator-page'; // 페이지의 고유 식별자 설정
+    };
+    (function() { // DON'T EDIT BELOW THIS LINE
+    var d = document, s = d.createElement('script');
+    s.src = 'https://builder-1-1.disqus.com/embed.js';
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
 <script src="main.js"></script>
 </body>
 </html>
