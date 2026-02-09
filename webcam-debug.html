@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>웹캠 디버깅 테스트</title>
+    <style>
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        #container { margin-top: 20px; width: 300px; height: 300px; border: 2px solid #ccc; background: #f0f0f0; }
+        button { padding: 10px 20px; font-size: 16px; }
+        p { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>웹캠 디버깅 페이지</h1>
+    <p>이 페이지는 웹캠 기능만을 테스트하기 위해 만들어졌습니다.</p>
+    <button id="start-btn">1. 웹캠 시작하기</button>
+    <div id="container"></div>
+    <pre id="log" style="width: 100%; white-space: pre-wrap; background: #eee; border: 1px solid #ccc; margin-top: 20px; padding: 10px;"></pre>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+    <script>
+        const startBtn = document.getElementById('start-btn');
+        const container = document.getElementById('container');
+        const logOutput = document.getElementById('log');
+        let webcam;
+
+        function log(message) {
+            console.log(message);
+            logOutput.textContent += `> ${message}\n`;
+        }
+
+        startBtn.addEventListener('click', async () => {
+            log('웹캠 시작 버튼 클릭됨.');
+            if (webcam) {
+                log('기존 웹캠 객체가 존재하여 중지/제거합니다.');
+                await webcam.stop();
+                webcam = null;
+            }
+            container.innerHTML = '';
+            
+            const flip = true;
+            webcam = new tmImage.Webcam(300, 300, flip);
+            
+            try {
+                log('tmImage.Webcam 객체 생성 완료. webcam.setup() 호출 시작...');
+                await webcam.setup({ facingMode: "user" });
+                log('webcam.setup() 성공. webcam.play() 호출 시작...');
+                await webcam.play();
+                log('webcam.play() 성공. 캔버스를 페이지에 추가합니다.');
+                container.appendChild(webcam.canvas);
+                log('웹캠 초기화 성공!');
+            } catch (error) {
+                log('--- 에러 발생 ---');
+                log(`에러 메시지: ${error.message}`);
+                log(`에러 이름: ${error.name}`);
+                log('전체 에러 객체:');
+                log(JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
+                container.innerHTML = '<p style="color:red;">웹캠 시작 실패! 로그를 확인하세요.</p>';
+            }
+        });
+    </script>
+</body>
+</html>

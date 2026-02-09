@@ -9,12 +9,15 @@
 </head>
 
 <body>
-<div id="theme-toggle" class="theme-toggle">
-  <button id="theme-toggle-button">🌙 다크 모드</button>
+<div class="header-buttons">
+  <button id="animal-test-btn">동물상 테스트</button>
+  <div id="theme-toggle" class="theme-toggle">
+    <button id="theme-toggle-button">🌙 다크 모드</button>
+  </div>
 </div>
 <div class="wrap">
   <!-- 메인 -->
-  <div class="card">
+  <div class="card main-card">
     <h1>로또 번호 생성기</h1>
     <p class="sub">
       버튼을 누르면 6개 + 보너스 1개가 생성돼요 (중복 없음)<br>
@@ -33,7 +36,7 @@
   </div>
 
   <!-- 기록 -->
-  <div class="card">
+  <div class="card history-card">
     <div class="historyHeader">
       <h3>최근 번호</h3>
       <button id="clearBtn" class="danger">지우기</button>
@@ -42,7 +45,7 @@
   </div>
 
   <!-- 제휴 문의 폼 -->
-  <div class="card">
+  <div class="card inquiry-card">
     <h3>제휴 문의</h3>
     <p class="sub">문의사항을 남겨주시면 빠르게 답변드리겠습니다.</p>
     <form action="https://formspree.io/f/meelqydj" method="POST">
@@ -63,7 +66,7 @@
   </div>
   
   <!-- Disqus 댓글 섹션 -->
-  <div class="card">
+  <div class="card comments-card">
     <h3>댓글</h3>
     <div id="disqus_thread"></div>
   </div>

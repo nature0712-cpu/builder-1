@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>동물상 테스트</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="test-page-body">
+  <div class="wrap">
+    <div class="card">
+      <a href="index.html" class="back-button">← 돌아가기</a>
+      <h1>동물상 테스트</h1>
+      <p class="sub">웹캠 또는 이미지 파일로 당신의 동물상을 찾아보세요!</p>
+
+      <div class="test-options">
+        <button id="webcam-tab-btn" class="tab-btn active">웹캠으로 테스트</button>
+        <button id="image-tab-btn" class="tab-btn">이미지로 테스트</button>
+      </div>
+
+      <!-- Webcam Test Area -->
+      <div id="webcam-section" class="test-section active">
+        <div id="webcam-wrapper">
+          <button class="button" type="button" id="start-webcam-btn" disabled>AI 모델 로딩 중...</button>
+        </div>
+        <div id="webcam-label-container" class="label-container"></div>
+      </div>
+
+      <!-- Image Upload Test Area -->
+      <div id="image-section" class="test-section">
+        <div id="drop-zone">
+            <p>여기에 이미지를 끌어다 놓거나 클릭하여 업로드하세요.</p>
+            <input type="file" id="file-input" accept="image/*" style="display: none;">
+        </div>
+        <div id="image-preview"></div>
+        <div id="image-label-container" class="label-container"></div>
+      </div>
+      
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+  <script type="text/javascript">
+    const URL = "https://teachablemachine.withgoogle.com/models/z7ub4M7Y0/";
+    let model, webcam, loopRequest;
+
+    const KOREAN_LABELS = {
+        "dog": "🐶 강아지상",
+        "cat": "🐱 고양이상",
+        "rabbit": "🐰 토끼상",
+        "ham": "🐹 햄스터상"
+    };
+
+    // --- UI Elements ---
+    const webcamTabBtn = document.getElementById('webcam-tab-btn');
+    const imageTabBtn = document.getElementById('image-tab-btn');
+    const webcamSection = document.getElementById('webcam-section');
+    const imageSection = document.getElementById('image-section');
+    const webcamWrapper = document.getElementById('webcam-wrapper');
+    const webcamLabelContainer = document.getElementById("webcam-label-container");
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+    const imagePreview = document.getElementById('image-preview');
+    const imageLabelContainer = document.getElementById("image-label-container");
+
+    // --- Main Setup ---
+    document.addEventListener('DOMContentLoaded', async () => {
+        await loadModel();
+        setupEventListeners();
+    });
+
+    async function loadModel() {
+        const startBtn = document.getElementById('start-webcam-btn');
+        try {
+            const modelURL = URL + "model.json";
+            const metadataURL = URL + "metadata.json";
+            model = await tmImage.load(modelURL, metadataURL);
+            startBtn.disabled = false;
+            startBtn.textContent = '웹캠 시작하기';
+        } catch (error) {
+            console.error("Model loading failed:", error);
+            startBtn.textContent = '모델 로딩 실패';
+            if(webcamWrapper) webcamWrapper.innerHTML += '<p class="sub error-msg">페이지를 새로고침 해주세요.</p>';
+        }
+    }
+
+    function setupEventListeners() {
+        webcamWrapper.addEventListener('click', (e) => {
+            const targetId = e.target.id;
+            if (targetId === 'start-webcam-btn' || targetId === 'retry-webcam-btn') {
+                initWebcam();
+            }
+        });
+
+        webcamTabBtn.addEventListener('click', () => {
+            webcamTabBtn.classList.add('active');
+            imageTabBtn.classList.remove('active');
+            webcamSection.classList.add('active');
+            imageSection.classList.remove('active');
+            imagePreview.innerHTML = '';
+            imageLabelContainer.innerHTML = '';
+        });
+
+        imageTabBtn.addEventListener('click', () => {
+            imageTabBtn.classList.add('active');
+            webcamTabBtn.classList.remove('active');
+            imageSection.classList.add('active');
+            webcamSection.classList.remove('active');
+            stopWebcam();
+        });
+
+        dropZone.addEventListener('click', () => fileInput.click());
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
+        });
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) handleFile(e.target.files[0]);
+        });
+    }
+
+    async function initWebcam() {
+        webcamWrapper.innerHTML = '<p class="sub">웹캠을 불러오는 중... 카메라 권한을 허용해주세요.</p>';
+        const flip = true;
+        webcam = new tmImage.Webcam(300, 300, flip);
+        try {
+            await webcam.setup({ facingMode: "user" });
+            await webcam.play();
+            webcamWrapper.innerHTML = ''; 
+            webcam.canvas.style.borderRadius = '8px';
+            webcamWrapper.appendChild(webcam.canvas);
+            loopRequest = window.requestAnimationFrame(loop);
+        } catch (error) {
+            console.error("Webcam setup failed:", error);
+            webcam = null;
+            webcamWrapper.innerHTML = 
+                `<p class="sub error-msg">웹캠을 시작할 수 없습니다.<br>브라우저의 카메라 권한을 확인하고 다시 시도해주세요.</p>` +
+                `<button class="button danger" type="button" id="retry-webcam-btn">다시 시도하기</button>`;
+        }
+    }
+
+    async function stopWebcam() {
+        if (loopRequest) {
+            window.cancelAnimationFrame(loopRequest);
+            loopRequest = null;
+        }
+        if (webcam) {
+            await webcam.stop();
+            webcam = null;
+        }
+        
+        const startBtnHTML = model 
+            ? '<button class="button" type="button" id="start-webcam-btn">웹캠 시작하기</button>' 
+            : '<button class="button" type="button" id="start-webcam-btn" disabled>AI 모델 로딩 중...</button>';
+        
+        webcamWrapper.innerHTML = startBtnHTML;
+        webcamLabelContainer.innerHTML = '';
+    }
+
+    async function loop() {
+        if (webcam && webcam.isActive) {
+            webcam.update();
+            await predict(webcam.canvas, webcamLabelContainer);
+            loopRequest = window.requestAnimationFrame(loop);
+        }
+    }
+
+    async function handleFile(file) {
+        if (!model) {
+            alert("모델이 아직 로딩 중입니다. 잠시 후 다시 시도해주세요.");
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.onload = async () => {
+                imagePreview.innerHTML = '';
+                imagePreview.appendChild(img);
+                await predict(img, imageLabelContainer);
+            };
+        };
+        reader.readAsDataURL(file);
+    }
+
+    async function predict(imageElement, labelContainer) {
+        const prediction = await model.predict(imageElement);
+        displayPredictions(prediction, labelContainer);
+    }
+
+    function displayPredictions(predictions, container) {
+        container.innerHTML = "";
+        const sortedPredictions = [...predictions].sort((a, b) => b.probability - a.probability);
+
+        sortedPredictions.forEach((prediction, index) => {
+            const probability = prediction.probability;
+            const percentage = (probability * 100).toFixed(1);
+            const animalClass = prediction.className.toLowerCase();
+            const koreanLabel = KOREAN_LABELS[animalClass] || animalClass;
+
+            const item = document.createElement("div");
+            item.classList.add("result-item", animalClass);
+            if (index === 0) {
+                item.classList.add("top-result");
+            }
+
+            item.innerHTML = `
+                <div class="result-label">${koreanLabel}</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: ${percentage}%;"></div>
+                </div>
+                <div class="result-percentage">${percentage}%</div>
+            `;
+            container.appendChild(item);
+        });
+    }
+  </script>
+</body>
+</html>
