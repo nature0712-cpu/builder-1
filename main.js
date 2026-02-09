@@ -45,7 +45,7 @@ function renderCurrent(){
       }
       const b=document.createElement("div");
       b.className=`ball ${rangeClass(v)} roll`;
-      b.textContent=v;
+      b.textContent=String(v);
       ballsEl.appendChild(b);
       if(i===all.length-1) copyBtn.disabled=false;
     }, i*130);
@@ -57,25 +57,36 @@ function saveHistory(){
 }
 
 function renderHistory(){
-  historyEl.innerHTML="";
-  history.forEach(h=>{
-    const item=document.createElement("div");
-    item.className="histItem";
-    item.innerHTML=`<div class="histTime">${h.time}</div>`;
-    const row=document.createElement("div");
-    row.className="histBalls";
+  historyEl.innerHTML = "";
+  history.forEach(h => {
+    if (!h || typeof h !== 'object') return; // Skip invalid entries
 
-    h.main.forEach(n=>{
-      const b=document.createElement("div");
-      b.className=`ball sm ${rangeClass(n)}`;
-      b.textContent=n;
-      row.appendChild(b);
-    });
+    const item = document.createElement("div");
+    item.className = "histItem";
 
-    const bb=document.createElement("div");
-    bb.className=`ball sm ${rangeClass(h.bonus)}`;
-    bb.textContent=h.bonus;
-    row.appendChild(bb);
+    const timeDiv = document.createElement("div");
+    timeDiv.className = "histTime";
+    timeDiv.textContent = h.time ? new Date(h.time).toLocaleString() : '';
+    item.appendChild(timeDiv);
+
+    const row = document.createElement("div");
+    row.className = "histBalls";
+
+    if (h.main && Array.isArray(h.main)) {
+        h.main.forEach(n => {
+            const b = document.createElement("div");
+            b.className = `ball sm ${rangeClass(n)}`;
+            b.textContent = String(n);
+            row.appendChild(b);
+        });
+    }
+
+    if (h.bonus) {
+        const bb = document.createElement("div");
+        bb.className = `ball sm ${rangeClass(h.bonus)}`;
+        bb.textContent = String(h.bonus);
+        row.appendChild(bb);
+    }
 
     item.appendChild(row);
     historyEl.appendChild(item);
@@ -92,9 +103,14 @@ drawBtn.onclick=()=>{
 };
 
 copyBtn.onclick=()=>{
-  navigator.clipboard.writeText(
-    `${current.main.join(" ")} + ${current.bonus}`
-  );
+  if (!current) return;
+  const mainNumbers = current.main.join(' ');
+  const textToCopy = `${mainNumbers} + ${current.bonus}`;
+  navigator.clipboard.writeText(textToCopy).then(() => {
+    alert('번호가 복사되었습니다!');
+  }).catch(err => {
+    console.error('복사 실패:', err);
+  });
 };
 
 clearBtn.onclick=()=>{
